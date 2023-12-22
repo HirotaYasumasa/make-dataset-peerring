@@ -15,7 +15,7 @@ def custom_split(text):
   return split_text
 
 def main():
-  text_file = open('./data/posts_list.txt', 'r', encoding='UTF-8')
+  text_file = open('./data/comments_lists.txt', 'r', encoding='UTF-8')
   texts = []
   previous_text = ""
 
@@ -31,11 +31,12 @@ def main():
     texts.append(previous_text.rstrip('\n').rstrip(',').rstrip(';').rstrip(')').lstrip('('))
 
   # #データ(列数)に不備がないかの確認
+  # comment_columns = 7
   # count = 0
   # for text_data in texts:
   #   split_data = custom_split(text_data)
   #   count += 1
-  #   if len(split_data) != 11:
+  #   if len(split_data) != comment_columns:
   #     print("==========Error==========")
   #     print(count)
   #     print(len(split_data))
@@ -43,38 +44,25 @@ def main():
   #     break
 
   dataframes = []
-  column_names = ['id', 'user_id', 'type', 'content', 'category', 'commented_at', 'audience', 'is_pinned', 'device_info', 'created_at', 'updated_at']
+  comment_column_names = ['id', 'user_id', 'type', 'post_id', 'content', 'created_at', 'updated_at']
 
   for text_data in texts:
     split_text = custom_split(text_data)
-    df = pd.DataFrame([split_text], columns=column_names)
+    df = pd.DataFrame([split_text], columns=comment_column_names)
     dataframes.append(df)
 
   result_df = pd.concat(dataframes, ignore_index=True)
 
   result_df['type'] = result_df['type'].map(lambda x: x.lstrip('\'').rstrip('\''))
   result_df['content'] = result_df['content'].map(lambda x: x.lstrip('\'').rstrip('\''))
-  result_df['category'] = result_df['category'].map(lambda x: x.lstrip('\'').rstrip('\''))
-  result_df['commented_at'] = result_df['commented_at'].map(lambda x: x.lstrip('\'').rstrip('\''))
-  result_df['device_info'] = result_df['device_info'].map(lambda x: x.lstrip('\'').rstrip('\''))
   result_df['created_at'] = result_df['created_at'].map(lambda x: x.lstrip('\'').rstrip('\''))
   result_df['updated_at'] = result_df['updated_at'].map(lambda x: x.lstrip('\'').rstrip('\''))
 
-  result_df['category'] = result_df['category'].map(lambda x: 'NULL' if x == '' else x)
-
   result_df['id'] = result_df['id'].astype('int')
   result_df['user_id'] = result_df['user_id'].astype('int')
+  result_df['post_id'] = result_df['user_id'].astype('int')
 
-  chunk_size = 5000
-  number_of_chunks = len(result_df) // chunk_size + (1 if len(result_df) % chunk_size else 0)
-
-  result_df.sort_values(by=["user_id","id"]).to_csv('./output/peerring_post_all.csv', index=False, encoding='utf_8_sig')
-
-  for i in range(number_of_chunks):
-    start_row = i * chunk_size
-    end_row = start_row + chunk_size
-    df_subset = result_df.sort_values('user_id').iloc[start_row:end_row]
-    #df_subset.to_csv(f'./output/peerring_post_id_{i+1}.csv', index=False, encoding='utf_8_sig')
+  result_df.sort_values(by=["post_id","id"]).to_csv('./output/peerring_comment_all.csv', index=False, encoding='utf_8_sig')
 
 if __name__ == '__main__':
   main()
