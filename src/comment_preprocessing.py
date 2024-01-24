@@ -60,7 +60,7 @@ def main():
 
   result_df['id'] = result_df['id'].astype('int')
   result_df['user_id'] = result_df['user_id'].astype('int')
-  result_df['post_id'] = result_df['user_id'].astype('int')
+  result_df['post_id'] = result_df['post_id'].astype('int')
 
   result_df.sort_values(by=["post_id","id"]).to_csv('./output/peerring_comment_all.csv', index=False, encoding='utf_8_sig')
 
